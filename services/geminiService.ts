@@ -1,58 +1,89 @@
-import { GoogleGenAI } from "@google/genai";
-import { WorksheetRequest, WorksheetResponse } from "../types";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { EducationLevel, Subject, WorksheetResponse } from "../types";
 
-const getClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    throw new Error("API Key not found. Please ensure process.env.API_KEY is set.");
-  }
-  return new GoogleGenAI({ apiKey });
-};
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-export const generateWorksheet = async (request: WorksheetRequest): Promise<WorksheetResponse> => {
-  const ai = getClient();
+// Inicializamos la IA.
+const genAI = new GoogleGenerativeAI(API_KEY || "");
+
+interface GenerateParams {
+  subject: Subject;
+  level: EducationLevel;
+  topic: string;
+  exerciseCount: number;
+  instructions?: string;
+}
+
+export const generateWorksheet = async (params: GenerateParams): Promise<WorksheetResponse> => {
   
-  const prompt = `
-    Act as an expert educational content creator. Create a worksheet for students.
-    
-    Target Audience: ${request.level} students.
-    Subject: ${request.subject}.
-    Topic: ${request.topic}.
-    Number of Exercises: ${request.exerciseCount}.
-    Additional Instructions: ${request.instructions || "None"}.
-
-    Output format:
-    Please provide the response in valid Markdown format.
-    Structure the worksheet clearly with:
-    1. A Title (H1)
-    2. A brief instruction paragraph (Italic)
-    3. The exercises numbered clearly.
-    4. Space for answers (use lines or underscores like "__________").
-    5. An Answer Key section at the very bottom, separated by a horizontal rule.
-    
-    Language: Spanish (unless the Subject is English, then use English).
-  `;
+  if (!API_KEY) {
+    console.error("❌ FALTA API KEY: Revisa tu archivo .env.local");
+    throw new Error("Falta la API Key de Gemini. Configúrala para continuar.");
+  }
 
   try {
-    // Using gemini-3-flash-preview as recommended for text tasks
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: {
-        thinkingConfig: { thinkingBudget: 0 }, // Disable thinking for faster generation on simple tasks
-        temperature: 0.7,
-      }
-    });
+    // ✅ RESTAURADO: Usamos la versión que tú indicaste
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const text = response.text || "Lo siento, no pude generar la ficha en este momento.";
+    // --- PROMPT OPTIMIZADO PARA TU VISUALIZADOR A4 ---
+    const prompt = `
+      Actúa como un profesor experto y crea una ficha educativa visual y limpia en MARKDOWN.
+      
+      DATOS DE LA FICHA:
+      - Asignatura: ${params.subject}
+      - Nivel: ${params.level}
+      - Tema: ${params.topic}
+      - Cantidad de ejercicios: ${params.exerciseCount}
+      - Instrucciones extra: ${params.instructions || "Ninguna"}
+
+      REGLAS DE FORMATO (ESTRICTO):
+      1. 🚫 NO uses LaTeX ni signos de dólar ($). Escribe las fórmulas en texto simple (ej: "x al cuadrado", "3/4").
+      2. 🚫 NO uses bloques de código (\`\`\`). Devuelve el Markdown puro directamente.
+      3. Usa Emojis para hacer la ficha amigable y visual.
+      4. Usa líneas horizontales (---) para separar secciones claramente.
+
+      ESTRUCTURA OBLIGATORIA DE LA RESPUESTA:
+      
+      # ${params.topic}
+      
+      > 💡 **Resumen Rápido**:
+      > (Explica el concepto en 2-3 líneas sencillas adaptadas a nivel ${params.level}).
+      
+      ---
+
+      ## 🧠 Ejemplo Resuelto
+      (Pon un ejemplo paso a paso muy claro usando texto simple).
+
+      ---
+
+      ## ✍️ Ejercicios Prácticos
+      (Genera exactamente ${params.exerciseCount} ejercicios. Usa una lista numerada).
+      1. [Ejercicio 1] __________
+      2. [Ejercicio 2] __________
+      ...
+
+      ---
+      
+      ### ✅ Soluciones (Para el profesor)
+      (Pon las respuestas aquí abajo en cursiva y letra pequeña).
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     return {
       content: text,
-      title: `Ficha: ${request.topic} (${request.subject})`
+      // Mantenemos esto si lo necesitas para tu interfaz, si no, puedes borrarlo
+      metadata: {
+        difficulty: "Adaptable",
+        estimatedTime: "20 min",
+        topics: [params.topic]
+      }
     };
 
   } catch (error) {
-    console.error("Error generating worksheet:", error);
-    throw new Error("Failed to generate worksheet via Gemini AI.");
+    console.error("Error conectando con Gemini:", error);
+    throw new Error("No se pudo generar la ficha. Verifica tu conexión o API Key.");
   }
 };

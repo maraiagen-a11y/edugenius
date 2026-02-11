@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, UserPlan } from '../types';
+import { User } from '../types';
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -36,14 +36,14 @@ export const Layout: React.FC<LayoutProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row print:bg-white">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row print:bg-white font-sans">
       {/* Mobile Header */}
       <div className="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center no-print">
         <div className="flex items-center space-x-2">
           <div className="bg-brand-600 text-white p-1.5 rounded-lg">
             <Sparkles size={20} />
           </div>
-          <span className="font-bold text-lg text-slate-800">EduGenius</span>
+          <span className="font-bold text-lg text-slate-800">FichaLab</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-slate-600">
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
@@ -57,20 +57,22 @@ export const Layout: React.FC<LayoutProps> = ({
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 flex flex-col h-full">
+          {/* LOGO DE ESCRITORIO - Aquí estaba el error */}
           <div className="hidden md:flex items-center space-x-2 mb-8">
              <div className="bg-brand-500 text-white p-1.5 rounded-lg">
                 <Sparkles size={24} />
               </div>
-            <span className="font-bold text-xl tracking-tight">EduGenius</span>
+            {/* CORREGIDO: De EduGenius a FichaLab */}
+            <span className="font-bold text-xl tracking-tight">FichaLab</span>
           </div>
 
           <div className="mb-6 px-3 py-2 bg-slate-800 rounded-lg">
             <div className="flex items-center space-x-3">
-              <div className="bg-slate-700 p-2 rounded-full">
+              <div className="bg-slate-700 p-2 rounded-full border border-slate-600">
                 <UserIcon size={16} />
               </div>
               <div className="overflow-hidden">
-                <p className="text-sm font-medium truncate">{user.name}</p>
+                <p className="text-sm font-medium truncate text-slate-100">{user.name}</p>
                 <p className="text-xs text-slate-400 capitalize">{user.plan} Plan</p>
               </div>
             </div>
@@ -86,7 +88,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 }}
                 className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
                   currentPage === item.id 
-                    ? 'bg-brand-600 text-white' 
+                    ? 'bg-brand-600 text-white shadow-md' 
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
@@ -98,7 +100,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
           <button 
             onClick={onLogout}
-            className="mt-auto flex items-center space-x-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-red-900/50 hover:text-red-200 transition-colors"
+            className="mt-auto flex items-center space-x-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-red-900/30 hover:text-red-300 transition-colors"
           >
             <LogOut size={20} />
             <span>Cerrar Sesión</span>
@@ -107,7 +109,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto h-screen">
+      <main className="flex-1 overflow-y-auto h-screen bg-slate-50">
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           {children}
         </div>

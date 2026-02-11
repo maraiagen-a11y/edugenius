@@ -1,50 +1,50 @@
 export enum UserPlan {
-  FREE = 'FREE',
-  PREMIUM = 'PREMIUM'
-}
-
-export enum Subject {
-  MATH = 'Matemáticas',
-  LANGUAGE = 'Lengua y Literatura',
-  ENGLISH = 'Inglés',
-  SCIENCE = 'Ciencias',
-  HISTORY = 'Historia'
+  FREE = 'free',
+  PREMIUM = 'premium'
 }
 
 export enum EducationLevel {
   PRIMARY = 'Primaria',
-  ESO = 'ESO',
-  BACHILLERATO = 'Bachillerato'
+  SECONDARY = 'Secundaria',
+  BACHILLERATO = 'Bachillerato',
+  UNIVERSITY = 'Universidad'
+}
+
+export enum Subject {
+  MATH = 'Matemáticas',
+  SCIENCE = 'Ciencias',
+  HISTORY = 'Historia',
+  LANGUAGE = 'Lengua',
+  ENGLISH = 'Inglés',
+  PROGRAMMING = 'Programación'
 }
 
 export interface User {
   id: string;
-  name: string;
   email: string;
+  name: string;
   plan: UserPlan;
-  generatedCount: number; // To track usage
+  generatedCount: number;
+  role?: string;
 }
 
+// --- AÑADIDO: Interfaz para los Recursos (Fichas) ---
 export interface Resource {
   id: string;
+  user_id: string;      // Vital para saber quién es el dueño
   title: string;
-  description: string;
-  subject: Subject;
-  level: EducationLevel;
-  type: 'PDF' | 'DOC' | 'VIDEO';
-  downloads: number;
-  isPremium: boolean;
-}
-
-export interface WorksheetRequest {
-  subject: Subject;
-  level: EducationLevel;
-  topic: string;
-  exerciseCount: number;
-  instructions?: string;
+  content: string;
+  created_at: string;
+  type: string;
+  is_public?: boolean;  // Nuevo: Para la Galería Pública
+  description?: string; // Nuevo: Opcional
 }
 
 export interface WorksheetResponse {
-  content: string; // Markdown content
-  title: string;
+  content: string;
+  metadata?: {
+    difficulty: string;
+    estimatedTime: string;
+    topics: string[];
+  };
 }

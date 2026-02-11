@@ -1,4 +1,4 @@
-import { EducationLevel, Resource, Subject } from "./types";
+import { EducationLevel, Resource, Subject, UserPlan } from "./types";
 
 export const MOCK_RESOURCES: Resource[] = [
   {
@@ -53,15 +53,30 @@ export const MOCK_RESOURCES: Resource[] = [
   }
 ];
 
+// --- LÍMITES DEL PLAN (ESTRATEGIA 4,99€) ---
 export const PLAN_LIMITS = {
-  FREE: {
-    maxGenerations: 5,
-    maxResources: 50,
-    canDownloadPremium: false
+  [UserPlan.FREE]: {
+    maxGenerations: 3,       // Bajamos a 3 para que prueben y quieran más
+    maxResources: 5,         // Límite de guardado
+    canExportPDF: false,     // <--- EL GANCHO: Ver sí, descargar no.
+    maxHistory: 3
   },
-  PREMIUM: {
-    maxGenerations: 9999,
-    maxResources: 9999,
-    canDownloadPremium: true
+  [UserPlan.PREMIUM]: {
+    maxGenerations: 1000,    // "Ilimitado" real para humanos (seguro para ti)
+    maxResources: 1000,      // Mucho espacio
+    canExportPDF: true,      // Descarga permitida
+    maxHistory: 1000
   }
+};
+
+// --- CONFIGURACIÓN DE LA APP Y PRECIOS ---
+export const APP_CONFIG = {
+    NAME: "EduGenius AI",
+    CURRENCY: "€",
+    PRICING: {
+        MONTHLY: 4.99,       // Precio accesible (Ticket bajo)
+        YEARLY: 49.00,       // 2 meses gratis si pagan el año
+        SAVE_PERCENTAGE: 18  // Ahorro visible
+    },
+    SUPPORT_EMAIL: "soporte@edugenius.com"
 };
